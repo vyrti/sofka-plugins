@@ -39,3 +39,5 @@ and it is what the packaged fixture test runs.
 - Findings come from Popeye. This package renders them; it does not add checks
   of its own, and a reviewed package is not a guarantee that Popeye has no
   defects.
+
+Responsible maintainer: `@vyrti`.

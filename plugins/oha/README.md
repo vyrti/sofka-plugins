@@ -52,4 +52,4 @@ for you.
 - A run that completes no requests still reports, because its error counts are
   usually what explains the failure.
 
-Responsible maintainer: sofka maintainers.
+Responsible maintainer: `@vyrti`.

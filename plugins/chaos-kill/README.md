@@ -59,4 +59,4 @@ sofka is showing.
 - Recovery time includes image pulls, so a cold node makes a healthy workload
   look slow.
 
-Responsible maintainer: sofka maintainers.
+Responsible maintainer: `@vyrti`.

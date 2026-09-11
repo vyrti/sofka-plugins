@@ -44,4 +44,4 @@ and it is what the packaged fixture test runs.
 - Findings come from Trivy. This package renders them; it does not add checks of
   its own, and a reviewed package is not a guarantee that Trivy has no defects.
 
-Responsible maintainer: sofka maintainers.
+Responsible maintainer: `@vyrti`.

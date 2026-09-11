@@ -2,7 +2,7 @@ schema_version = 1
 
 [package]
 version = "0.1.0"
-authors = ["sofka maintainers"]
+authors = ["vyrti"]
 license = "MIT OR Apache-2.0"
 description = "Scan the active context with Trivy and report vulnerabilities, misconfigurations, and secrets."
 repository = "https://github.com/nklmilojevic/sofka-plugins"
