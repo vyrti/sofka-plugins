@@ -1,0 +1,29 @@
+{
+  "kind": "PodList",
+  "items": [
+    {
+      "metadata": { "name": "web-newest", "creationTimestamp": "2026-09-11T12:00:00Z" },
+      "status": { "phase": "Running" }
+    },
+    {
+      "metadata": { "name": "web-oldest", "creationTimestamp": "2026-09-11T09:00:00Z" },
+      "status": { "phase": "Running" }
+    },
+    {
+      "metadata": { "name": "web-middle", "creationTimestamp": "2026-09-11T10:00:00Z" },
+      "status": { "phase": "Running" }
+    },
+    {
+      "metadata": {
+        "name": "web-terminating",
+        "creationTimestamp": "2026-09-11T08:00:00Z",
+        "deletionTimestamp": "2026-09-11T12:30:00Z"
+      },
+      "status": { "phase": "Running" }
+    },
+    {
+      "metadata": { "name": "web-pending", "creationTimestamp": "2026-09-11T07:00:00Z" },
+      "status": { "phase": "Pending" }
+    }
+  ]
+}
