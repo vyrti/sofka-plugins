@@ -1,0 +1,15 @@
+schema_version = 1
+
+[plugin]
+name = "Resource summary"
+palette = "resource-summary"
+command = "./resource-summary"
+args = []
+requires = []
+output = "report"
+mutating = false
+timeout = "10s"
+
+[plugin.inputs.detail]
+type = "boolean"
+default = "false"
