@@ -1,5 +1,309 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-11T00:00:00Z",
-  "plugins": []
+  "generated_at": "2026-09-11T13:56:50Z",
+  "plugins": [
+    {
+      "id": "chaos-kill",
+      "display_name": "Chaos kill",
+      "description": "Delete pods of the selected workload and measure how long it takes to become ready again.",
+      "tags": [
+        "chaos",
+        "resiliency",
+        "testing",
+        "report"
+      ],
+      "publisher": "vyrti",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/660303b263b1e75dc2778f7169f65a67a215f0ce/plugins/chaos-kill/README.md",
+          "requirements": [
+            {
+              "name": "kubectl",
+              "install": "Install kubectl from https://kubernetes.io/docs/tasks/tools/"
+            }
+          ],
+          "command": "./adapter",
+          "target": "selection",
+          "output": "report",
+          "mutating": true,
+          "confirm": false,
+          "dangerous": true,
+          "network_load": false,
+          "source_commit": "660303b263b1e75dc2778f7169f65a67a215f0ce",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/chaos-kill-v0.1.0/chaos-kill-0.1.0-x86_64-unknown-linux-gnu.tar.zst",
+              "blake3": "995f1e52a743bd90b84474d09403a4a27371ca295011d859b4edf35225882933",
+              "size": 250322
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/chaos-kill-v0.1.0/chaos-kill-0.1.0-aarch64-unknown-linux-gnu.tar.zst",
+              "blake3": "5d37c276bee056d63659dc2908bb4413891f044d051c3b0c74994aa1891da458",
+              "size": 229604
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/chaos-kill-v0.1.0/chaos-kill-0.1.0-x86_64-apple-darwin.tar.zst",
+              "blake3": "dab338dfcb7705ac66c020991a53365b567bffc70e0bbeafb85772b247a3a129",
+              "size": 240269
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/chaos-kill-v0.1.0/chaos-kill-0.1.0-aarch64-apple-darwin.tar.zst",
+              "blake3": "0e299d24c96981a970020688524f627d44ee3a5e846a010da106b2620d50b6f3",
+              "size": 219623
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "oha",
+      "display_name": "HTTP benchmark",
+      "description": "Benchmark the selected pod or service over a managed port-forward with oha.",
+      "tags": [
+        "benchmark",
+        "http",
+        "load",
+        "report"
+      ],
+      "publisher": "vyrti",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/660303b263b1e75dc2778f7169f65a67a215f0ce/plugins/oha/README.md",
+          "requirements": [
+            {
+              "name": "oha",
+              "install": "Install oha from https://github.com/hatoo/oha#installation"
+            }
+          ],
+          "command": "./adapter",
+          "target": "selection",
+          "output": "report",
+          "mutating": false,
+          "confirm": false,
+          "dangerous": false,
+          "network_load": true,
+          "source_commit": "660303b263b1e75dc2778f7169f65a67a215f0ce",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/oha-v0.1.0/oha-0.1.0-x86_64-unknown-linux-gnu.tar.zst",
+              "blake3": "6fd8bb75dd97ebf94d4fc92a57f499903367c2bfe9eb86e36f06d71f98f3c452",
+              "size": 270762
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/oha-v0.1.0/oha-0.1.0-aarch64-unknown-linux-gnu.tar.zst",
+              "blake3": "aa0163cdff9d2b0bc41f9846fdee2dec7d79bc6e87aabba3d1bcd539a1151a4f",
+              "size": 249125
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/oha-v0.1.0/oha-0.1.0-x86_64-apple-darwin.tar.zst",
+              "blake3": "0d5de9056a4eea05589d086e2b93ba06b83eeefc786b93afdd93fc75f66695d2",
+              "size": 258776
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/oha-v0.1.0/oha-0.1.0-aarch64-apple-darwin.tar.zst",
+              "blake3": "8ee160f032a2baddd6732cf59ec18e71dde35271f0bc771a86eba7f5236e7c2a",
+              "size": 236964
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "popeye",
+      "display_name": "Popeye scan",
+      "description": "Scan the active context with Popeye and report findings by linter.",
+      "tags": [
+        "diagnostics",
+        "report",
+        "audit"
+      ],
+      "publisher": "vyrti",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/660303b263b1e75dc2778f7169f65a67a215f0ce/plugins/popeye/README.md",
+          "requirements": [
+            {
+              "name": "popeye",
+              "install": "Install Popeye from https://github.com/derailed/popeye#installation"
+            }
+          ],
+          "command": "./adapter",
+          "target": "context",
+          "output": "report",
+          "mutating": false,
+          "confirm": false,
+          "dangerous": false,
+          "network_load": false,
+          "source_commit": "660303b263b1e75dc2778f7169f65a67a215f0ce",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-x86_64-unknown-linux-gnu.tar.zst",
+              "blake3": "36b61f5157723ffc5f4e1fb8e006594d3eec652ba9db1fcea51735bacb1eeff3",
+              "size": 261949
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-aarch64-unknown-linux-gnu.tar.zst",
+              "blake3": "b16cd63b50f1b703532f758e9fdc5da807c96b7f613b4bae3857caf8c02f703c",
+              "size": 241852
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-x86_64-apple-darwin.tar.zst",
+              "blake3": "a5951cbe75fa8f7a28b73c360c421a8bf8d5129ecc3ea011326c79ae291613fd",
+              "size": 250376
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-aarch64-apple-darwin.tar.zst",
+              "blake3": "26e806631880816c19c0eafacf07d9ba6079053c3aec563649a4cd0dd7b80f96",
+              "size": 230394
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resource-summary",
+      "display_name": "Resource summary",
+      "description": "Show identity, context, and optionally labels for the selected Kubernetes resource.",
+      "tags": [
+        "example",
+        "report",
+        "resources"
+      ],
+      "publisher": "sofka maintainers",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/660303b263b1e75dc2778f7169f65a67a215f0ce/plugins/resource-summary/README.md",
+          "requirements": [],
+          "command": "./adapter",
+          "target": "selection",
+          "output": "report",
+          "mutating": false,
+          "confirm": false,
+          "dangerous": false,
+          "network_load": false,
+          "source_commit": "660303b263b1e75dc2778f7169f65a67a215f0ce",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-x86_64-unknown-linux-gnu.tar.zst",
+              "blake3": "39eba0859f9e20833c2eea0d49f993ca2d92f1b3d635df6a9b6fa2d2909cfdab",
+              "size": 212493
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-aarch64-unknown-linux-gnu.tar.zst",
+              "blake3": "c12d744b125ab3bcd9a415ce49362ce444432323ca80070553f7ae7c8a69c119",
+              "size": 196192
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-x86_64-apple-darwin.tar.zst",
+              "blake3": "4a4ecd5083dcbf430220adf4b399af3c08220064c5d968dfbf3c6970d79beae9",
+              "size": 206650
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-aarch64-apple-darwin.tar.zst",
+              "blake3": "088d62793df5bc4b211f36c80c3dca14d4c8ff1fb6b4682826866856187f6b83",
+              "size": 190452
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trivy",
+      "display_name": "Trivy scan",
+      "description": "Scan the active context with Trivy and report vulnerabilities, misconfigurations, and secrets.",
+      "tags": [
+        "security",
+        "vulnerabilities",
+        "report",
+        "audit"
+      ],
+      "publisher": "vyrti",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/660303b263b1e75dc2778f7169f65a67a215f0ce/plugins/trivy/README.md",
+          "requirements": [
+            {
+              "name": "trivy",
+              "install": "Install Trivy from https://trivy.dev/latest/getting-started/installation/"
+            }
+          ],
+          "command": "./adapter",
+          "target": "context",
+          "output": "report",
+          "mutating": false,
+          "confirm": false,
+          "dangerous": false,
+          "network_load": false,
+          "source_commit": "660303b263b1e75dc2778f7169f65a67a215f0ce",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/trivy-v0.1.0/trivy-0.1.0-x86_64-unknown-linux-gnu.tar.zst",
+              "blake3": "dd8b2d0df8f6078b5c6ca2a446b131328ed302b52a90b846279eecdb27f67054",
+              "size": 265076
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/trivy-v0.1.0/trivy-0.1.0-aarch64-unknown-linux-gnu.tar.zst",
+              "blake3": "46723f3a15553bafaccf74db1dc194c2d3baf11389c02198bb95e94f2ac8b9f2",
+              "size": 245221
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/trivy-v0.1.0/trivy-0.1.0-x86_64-apple-darwin.tar.zst",
+              "blake3": "e18304d26c33f86ffdd9f1ba37c1c2b75d6a6c93137577419032498aaac53fbc",
+              "size": 252752
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/trivy-v0.1.0/trivy-0.1.0-aarch64-apple-darwin.tar.zst",
+              "blake3": "df95a9af6d8f072bfd2c0e581076478872ad47ece4f84fec3e2741c219125cfd",
+              "size": 233665
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
