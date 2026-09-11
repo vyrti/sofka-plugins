@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Score",
+          "72% (C)"
+        ],
+        [
+          "Context",
+          "prod"
+        ],
+        [
+          "Cluster",
+          "prod-cluster"
+        ],
+        [
+          "Namespace",
+          "apps"
+        ],
+        [
+          "Scanned",
+          "2026-09-11T09:30:00Z"
+        ],
+        [
+          "Linters",
+          "2"
+        ]
+      ],
+      "title": "Summary"
+    },
+    {
+      "lines": [
+        "ok 2 · info 1 · warning 1 · error 1",
+        "  apps/web",
+        "    ERROR [POP-106] CrashLoopBackOff",
+        "    WARNING [POP-107] No probes defined",
+        "  apps/worker",
+        "    INFO [POP-108] Unnamed port"
+      ],
+      "title": "pods — 50% (v1/pods)"
+    },
+    {
+      "lines": [
+        "ok 3 · info 0 · warning 0 · error 0"
+      ],
+      "title": "services — 100% (v1/services)"
+    },
+    {
+      "lines": [
+        "metrics-server unavailable"
+      ],
+      "title": "Report errors"
+    }
+  ],
+  "title": "Popeye scan"
+}
