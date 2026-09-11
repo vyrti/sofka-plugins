@@ -499,6 +499,11 @@ def assert_immutable(base: str, head: str) -> None:
             check(isinstance(reason, str) and reason.strip() != "", f"{name}: withdrawal needs a reason")
 
 
+def version(args: argparse.Namespace) -> None:
+    """The package release version, for workflows that name asset files."""
+    print(manifest(args.plugin)["package"]["version"])
+
+
 def package(args: argparse.Namespace) -> None:
     plugin = args.plugin
     metadata = publication(plugin)
@@ -588,6 +593,8 @@ def main() -> None:
     unpublished = commands.add_parser("assert-unpublished")
     unpublished.add_argument("--base", required=True)
     unpublished.add_argument("--head", required=True)
+    released = commands.add_parser("version")
+    released.add_argument("--plugin", required=True)
     packaging = commands.add_parser("package")
     packaging.add_argument("--plugin", required=True)
     packaging.add_argument("--target", required=True)
@@ -615,6 +622,8 @@ def main() -> None:
             changes(args)
         elif args.command == "assert-unpublished":
             assert_unpublished(args)
+        elif args.command == "version":
+            version(args)
         elif args.command == "package":
             package(args)
         elif args.command == "update-index":

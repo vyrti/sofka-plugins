@@ -82,7 +82,7 @@ jobs:
           cargo build --release --locked --package "sofka-plugin-$PLUGIN" --target "$TARGET"
           "target/$TARGET/release/sofka-plugin-$PLUGIN" < "plugins/$PLUGIN/fixtures/request.json" > report.json
           python3 -c 'import json,sys; assert json.load(open(sys.argv[1])) == json.load(open(sys.argv[2]))' report.json "plugins/$PLUGIN/fixtures/report.json"
-          version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "plugins/$PLUGIN/publication.json")"
+          version="$(python3 scripts/catalog.py version --plugin "$PLUGIN")"
           python3 scripts/catalog.py package \
             --plugin "$PLUGIN" \
             --target "$TARGET" \
@@ -125,7 +125,7 @@ jobs:
       - name: Publish immutable release assets
         run: |
           for plugin in $(jq -r '.[]' <<<"$PLUGINS_JSON"); do
-            version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "plugins/$plugin/publication.json")"
+            version="$(python3 scripts/catalog.py version --plugin "$plugin")"
             tag="$plugin-v$version"
             if ! gh release view "$tag" >/dev/null 2>&1; then
               gh release create "$tag" dist/$plugin-$version-*.tar.gz \

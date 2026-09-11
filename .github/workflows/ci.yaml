@@ -96,7 +96,7 @@ jobs:
           PLUGIN: ${{ matrix.plugin }}
           TARGET: ${{ matrix.target }}
         run: |
-          version="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "plugins/$PLUGIN/publication.json")"
+          version="$(python3 scripts/catalog.py version --plugin "$PLUGIN")"
           python3 scripts/catalog.py package \
             --plugin "$PLUGIN" \
             --target "$TARGET" \

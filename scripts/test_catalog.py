@@ -293,6 +293,14 @@ def check_packaging() -> None:
                 )
             ),
         )
+        # The workflows name asset files from this, so it must stay parseable.
+        import io as _io, contextlib
+        printed = _io.StringIO()
+        with contextlib.redirect_stdout(printed):
+            catalog.version(argparse.Namespace(plugin="popeye"))
+        if printed.getvalue().strip() != catalog.manifest("popeye")["package"]["version"]:
+            FAILURES.append(f"version printed {printed.getvalue()!r}")
+
         rejects(
             "a missing adapter binary",
             lambda: catalog.package(
