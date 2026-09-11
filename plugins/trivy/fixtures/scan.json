@@ -1,0 +1,51 @@
+{
+  "SchemaVersion": 2,
+  "ClusterName": "prod-cluster",
+  "Findings": [
+    {
+      "Namespace": "apps",
+      "Kind": "Deployment",
+      "Name": "web",
+      "Results": [
+        {
+          "Target": "nginx:1.20",
+          "Class": "os-pkgs",
+          "Vulnerabilities": [
+            {
+              "VulnerabilityID": "CVE-2026-1234",
+              "PkgName": "openssl",
+              "InstalledVersion": "1.0",
+              "FixedVersion": "1.1",
+              "Title": "Example vulnerability",
+              "Severity": "CRITICAL"
+            }
+          ],
+          "Misconfigurations": [
+            {
+              "ID": "AVD-KSV-0001",
+              "Title": "Runs as root",
+              "Severity": "HIGH",
+              "Status": "FAIL"
+            }
+          ],
+          "Secrets": [
+            { "RuleID": "generic-api-key", "Title": "API key", "Severity": "MEDIUM" }
+          ]
+        }
+      ]
+    },
+    {
+      "Namespace": "apps",
+      "Kind": "Deployment",
+      "Name": "clean",
+      "Results": []
+    },
+    {
+      "Namespace": "kube-system",
+      "Kind": "DaemonSet",
+      "Name": "agent",
+      "Results": [],
+      "Error": "failed to pull image: unauthorized"
+    }
+  ]
+}

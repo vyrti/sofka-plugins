@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Findings",
+          "3"
+        ],
+        [
+          "Critical",
+          "1"
+        ],
+        [
+          "High",
+          "1"
+        ],
+        [
+          "Medium",
+          "1"
+        ],
+        [
+          "Low",
+          "0"
+        ],
+        [
+          "Vulnerabilities",
+          "1"
+        ],
+        [
+          "Misconfigurations",
+          "1"
+        ],
+        [
+          "Secrets",
+          "1"
+        ],
+        [
+          "Context",
+          "prod"
+        ],
+        [
+          "Cluster",
+          "prod-cluster"
+        ],
+        [
+          "Namespace",
+          "apps"
+        ],
+        [
+          "Resources",
+          "2"
+        ],
+        [
+          "Scan errors",
+          "1"
+        ]
+      ],
+      "title": "Summary"
+    },
+    {
+      "lines": [
+        "1 vulnerabilities · 1 misconfigurations · 1 secrets · C 1 H 1 M 1 L 0 U 0",
+        "  [vulnerability] CRITICAL CVE-2026-1234 · openssl@1.0 → 1.1 — Example vulnerability",
+        "  [misconfiguration] HIGH AVD-KSV-0001 — Runs as root",
+        "  [secret] MEDIUM generic-api-key — API key"
+      ],
+      "title": "apps · Deployment/web"
+    },
+    {
+      "lines": [
+        "0 vulnerabilities · 0 misconfigurations · 0 secrets · C 0 H 0 M 0 L 0 U 0",
+        "  ERROR failed to pull image: unauthorized"
+      ],
+      "title": "kube-system · DaemonSet/agent"
+    }
+  ],
+  "title": "Trivy scan"
+}
