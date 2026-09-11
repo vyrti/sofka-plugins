@@ -1,5 +1,123 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-11T00:00:00Z",
-  "plugins": []
+  "generated_at": "2026-09-11T11:05:47Z",
+  "plugins": [
+    {
+      "id": "popeye",
+      "display_name": "Popeye scan",
+      "description": "Scan the active context with Popeye and report findings by linter.",
+      "tags": [
+        "diagnostics",
+        "report",
+        "audit"
+      ],
+      "publisher": "sofka maintainers",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/fa9a8b7a36d251f9f820d071edbd379321fbe260/plugins/popeye/README.md",
+          "requirements": [
+            {
+              "name": "popeye",
+              "install": "Install Popeye from https://github.com/derailed/popeye#installation"
+            }
+          ],
+          "command": "./adapter",
+          "target": "context",
+          "output": "report",
+          "mutating": false,
+          "confirm": false,
+          "dangerous": false,
+          "network_load": false,
+          "source_commit": "fa9a8b7a36d251f9f820d071edbd379321fbe260",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-x86_64-unknown-linux-gnu.tar.gz",
+              "sha256": "f035afa9e325e7fe89f4da6e4dda12fa97a2f6bf81d0f8b3581756ce564aa9ac",
+              "size": 310037
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-aarch64-unknown-linux-gnu.tar.gz",
+              "sha256": "d79f80f56ec153f020f856e8d1c1502c4b63d5839fbb62e7afec0fed11a77fc8",
+              "size": 289062
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-x86_64-apple-darwin.tar.gz",
+              "sha256": "68e8267bb451364bc596b2c7451c1ca45a56c031d2d35ca119e1a6724aed09f9",
+              "size": 296919
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/popeye-v0.1.0/popeye-0.1.0-aarch64-apple-darwin.tar.gz",
+              "sha256": "224fc49cd415408b3b3a8639b740caecc281b5f19263584b725ede0708f8f780",
+              "size": 279411
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resource-summary",
+      "display_name": "Resource summary",
+      "description": "Show identity, context, and optionally labels for the selected Kubernetes resource.",
+      "tags": [
+        "example",
+        "report",
+        "resources"
+      ],
+      "publisher": "sofka maintainers",
+      "repository": "https://github.com/vyrti/sofka-plugins",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "sofka": ">=0.25.5",
+          "license": "MIT OR Apache-2.0",
+          "readme": "https://github.com/vyrti/sofka-plugins/blob/fa9a8b7a36d251f9f820d071edbd379321fbe260/plugins/resource-summary/README.md",
+          "requirements": [],
+          "command": "./adapter",
+          "target": "selection",
+          "output": "report",
+          "mutating": false,
+          "confirm": false,
+          "dangerous": false,
+          "network_load": false,
+          "source_commit": "fa9a8b7a36d251f9f820d071edbd379321fbe260",
+          "status": "active",
+          "artifacts": [
+            {
+              "platform": "x86_64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-x86_64-unknown-linux-gnu.tar.gz",
+              "sha256": "363232d760446589a357a76f25165de9febe93a1432ac53ac3b3708631a4f831",
+              "size": 247690
+            },
+            {
+              "platform": "aarch64-unknown-linux-gnu",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-aarch64-unknown-linux-gnu.tar.gz",
+              "sha256": "0fd89f426eea89ba5237c4058d5c01b914fa496459dca1ec2758c7254be1fa72",
+              "size": 231288
+            },
+            {
+              "platform": "x86_64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-x86_64-apple-darwin.tar.gz",
+              "sha256": "85d20bc7acce2f0e552e9461b3c5688bfe5c2898e0c0b8a7807c5b1756b32762",
+              "size": 241453
+            },
+            {
+              "platform": "aarch64-apple-darwin",
+              "url": "https://github.com/vyrti/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-aarch64-apple-darwin.tar.gz",
+              "sha256": "3de410ffb4c46cf664fab5739fbab04292b819ae10c8e7b4ad8033bc29b2806a",
+              "size": 226459
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
