@@ -2,9 +2,9 @@ schema_version = 1
 
 [package]
 version = "0.1.0"
-authors = ["sofka maintainers"]
+authors = ["vyrti"]
 license = "MIT OR Apache-2.0"
-description = "Show identity, context, and optionally labels for the selected Kubernetes resource."
+description = "Scan the active context with Popeye and report findings by linter."
 repository = "https://github.com/nklmilojevic/sofka-plugins"
 readme = "README.md"
 sofka = ">=0.25.5"
@@ -14,18 +14,20 @@ platforms = [
   "x86_64-apple-darwin",
   "aarch64-apple-darwin",
 ]
-tags = ["example", "report", "resources"]
+tags = ["diagnostics", "report", "audit"]
 
 [plugin]
-name = "Resource summary"
-palette = "resource-summary"
+name = "Popeye scan"
+palette = "popeye"
 command = "./adapter"
 args = []
-requires = []
+requires = ["popeye"]
+install = "Install Popeye from https://github.com/derailed/popeye#installation"
 output = "report"
+target = "context"
 mutating = false
-timeout = "10s"
+timeout = "5m"
 
-[plugin.inputs.detail]
-type = "boolean"
-default = "false"
+[plugin.inputs.report]
+type = "string"
+default = ""

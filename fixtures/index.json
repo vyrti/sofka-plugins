@@ -28,8 +28,8 @@
           "artifacts": [
             {
               "platform": "aarch64-apple-darwin",
-              "url": "https://github.com/nklmilojevic/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-aarch64-apple-darwin.tar.gz",
-              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "url": "https://github.com/nklmilojevic/sofka-plugins/releases/download/resource-summary-v0.1.0/resource-summary-0.1.0-aarch64-apple-darwin.tar.zst",
+              "blake3": "0000000000000000000000000000000000000000000000000000000000000000",
               "size": 1
             }
           ]

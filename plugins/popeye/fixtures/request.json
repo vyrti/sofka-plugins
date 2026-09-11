@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "context": "prod",
+  "cluster": "prod-cluster",
+  "namespace": "apps",
+  "resource": "pods",
+  "name": "",
+  "filter": "",
+  "inputs": { "report": "plugins/popeye/fixtures/scan.json" },
+  "object": null,
+  "forward": null
+}

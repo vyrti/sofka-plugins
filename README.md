@@ -7,6 +7,11 @@ Sofka reads the complete catalog from [`index.json`](index.json) once per
 command. Package source remains under `plugins/<id>/`; compiled archives are
 GitHub Release assets and are never committed to Git.
 
+| Package                                        | Needs                                                  |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| [`popeye`](plugins/popeye)                     | [Popeye](https://github.com/derailed/popeye) on `PATH` |
+| [`resource-summary`](plugins/resource-summary) | nothing                                                |
+
 The complete scope, design, and acceptance criteria are in
 [sofka issue #502](https://github.com/nklmilojevic/sofka/issues/502).
 The agreed proposal is in
@@ -18,7 +23,7 @@ for the current package format.
 ## Publishing a package
 
 1. Add or change one directory under `plugins/` and increment its semantic
-   version in both `Cargo.toml` and `publication.json`.
+   version in both `Cargo.toml` and the `[package]` table of `plugin.toml`.
 2. Open a pull request. CI validates and builds only the changed packages for
    their supported platforms.
 3. After merge, CI creates immutable release assets for each changed package.

@@ -87,7 +87,7 @@
     "artifact": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["platform", "url", "sha256", "size"],
+      "required": ["platform", "url", "blake3", "size"],
       "properties": {
         "platform": {
           "enum": [
@@ -99,7 +99,7 @@
           ]
         },
         "url": { "type": "string", "format": "uri" },
-        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "blake3": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
         "size": { "type": "integer", "minimum": 1, "maximum": 52428800 }
       }
     }
