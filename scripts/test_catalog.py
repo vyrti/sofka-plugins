@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import argparse
 import copy
-import gzip
 import io
+import zstandard
 import json
 import pathlib
 import subprocess
@@ -16,6 +16,7 @@ import tempfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
+import blake3
 import catalog
 
 FIXTURE = catalog.ROOT / "fixtures" / "index.json"
@@ -150,7 +151,7 @@ def check_immutability() -> None:
                 return commit(repository, value, "change")
 
             def repoint(plugin):
-                plugin["versions"][0]["artifacts"][0]["sha256"] = "9" * 64
+                plugin["versions"][0]["artifacts"][0]["blake3"] = "9" * 64
 
             rejects("a repointed digest", lambda: catalog.assert_immutable(base, head(repoint)))
             rejects(
@@ -247,7 +248,7 @@ def check_packaging() -> None:
         binary.write_bytes(b"#!/bin/sh\nexit 0\n")
         built = []
         for run in range(2):
-            target = out / f"package-{run}.tar.gz"
+            target = out / f"package-{run}.tar.zst"
             catalog.package(
                 argparse.Namespace(
                     plugin="resource-summary",
@@ -260,7 +261,7 @@ def check_packaging() -> None:
         if built[0] != built[1]:
             FAILURES.append("packaging is not reproducible")
 
-        with tarfile.open(fileobj=io.BytesIO(gzip.decompress(built[0]))) as archive:
+        with tarfile.open(fileobj=io.BytesIO(zstandard.ZstdDecompressor().decompress(built[0], max_output_size=64 << 20))) as archive:
             members = {member.name: member for member in archive.getmembers()}
         expected = {
             "plugin.toml": 0o644,
@@ -289,7 +290,7 @@ def check_packaging() -> None:
                     plugin="resource-summary",
                     target="powerpc-unknown-linux-gnu",
                     binary=str(binary),
-                    output=str(out / "bad.tar.gz"),
+                    output=str(out / "bad.tar.zst"),
                 )
             ),
         )
@@ -308,7 +309,7 @@ def check_packaging() -> None:
                     plugin="resource-summary",
                     target="x86_64-unknown-linux-gnu",
                     binary=str(out / "absent"),
-                    output=str(out / "bad.tar.gz"),
+                    output=str(out / "bad.tar.zst"),
                 )
             ),
         )
@@ -324,7 +325,7 @@ def check_index_generation() -> None:
         version = metadata["version"]
         payload = {}
         for platform in metadata["platforms"]:
-            name = f"resource-summary-{version}-{platform}.tar.gz"
+            name = f"resource-summary-{version}-{platform}.tar.zst"
             payload[platform] = f"bytes for {platform}".encode()
             (assets / name).write_bytes(payload[platform])
         index = root / "index.json"
@@ -350,11 +351,9 @@ def check_index_generation() -> None:
                 FAILURES.append("generated release is not a plain active record")
             if f"/blob/{commit}/" not in release["readme"]:
                 FAILURES.append("generated README link is not pinned to the source commit")
-            import hashlib
-
             for artifact in release["artifacts"]:
                 bytes_ = payload[artifact["platform"]]
-                if artifact["sha256"] != hashlib.sha256(bytes_).hexdigest():
+                if artifact["blake3"] != blake3.blake3(bytes_).hexdigest():
                     FAILURES.append(f"{artifact['platform']} digest is not the published bytes")
                 if artifact["size"] != len(bytes_):
                     FAILURES.append(f"{artifact['platform']} size is not the published length")
@@ -366,11 +365,11 @@ def check_index_generation() -> None:
             # Re-running with identical bytes is a no-op; different bytes are not.
             accepts("an identical re-publication", lambda: catalog.update_index(arguments))
             for platform in metadata["platforms"]:
-                name = f"resource-summary-{version}-{platform}.tar.gz"
+                name = f"resource-summary-{version}-{platform}.tar.zst"
                 (assets / name).write_bytes(b"different bytes")
             rejects("a re-publication with different bytes", lambda: catalog.update_index(arguments))
 
-            (assets / f"resource-summary-{version}-{metadata['platforms'][0]}.tar.gz").unlink()
+            (assets / f"resource-summary-{version}-{metadata['platforms'][0]}.tar.zst").unlink()
             rejects("a missing published asset", lambda: catalog.update_index(arguments))
         finally:
             catalog.INDEX = original_index
@@ -390,22 +389,40 @@ def check_source_rules() -> None:
     for plugin in catalog.plugin_ids():
         if (catalog.PLUGINS / plugin / "publication.json").exists():
             FAILURES.append(f"{plugin} still carries publication.json")
-    derived = catalog.publication("popeye")
-    install = catalog.manifest("popeye")["plugin"]["install"]
-    for field, value in (
-        ("id", "popeye"),
-        ("display_name", "Popeye scan"),
-        ("publisher", "sofka maintainers"),
-        ("command", "./adapter"),
-        ("target", "context"),
-        ("output", "report"),
-        ("mutating", False),
-        ("confirm", False),
-        ("readme", "README.md"),
-        ("requirements", [{"name": "popeye", "install": install}]),
-    ):
-        if derived[field] != value:
-            FAILURES.append(f"popeye {field} derived as {derived[field]!r}, expected {value!r}")
+    # The mapping is what matters, not the values a package happens to carry.
+    for plugin in catalog.plugin_ids():
+        authored = catalog.manifest(plugin)
+        package, definition = authored["package"], authored["plugin"]
+        derived = catalog.publication(plugin)
+        expected = {
+            "id": plugin,
+            "display_name": definition["name"],
+            "description": package["description"],
+            "publisher": ", ".join(package["authors"]),
+            "repository": package["repository"],
+            "version": package["version"],
+            "sofka": package["sofka"],
+            "license": package["license"],
+            "readme": package["readme"],
+            "tags": package.get("tags", []),
+            "platforms": package["platforms"],
+            "command": definition["command"],
+            "target": definition.get("target", "selection"),
+            "output": definition["output"],
+            "mutating": definition["mutating"],
+            "confirm": definition.get("confirm", False),
+            "dangerous": definition.get("dangerous", False),
+            "network_load": definition.get("network_load", False),
+            "requirements": [
+                {"name": name, "install": definition.get("install", "")}
+                for name in definition.get("requires", [])
+            ],
+        }
+        if set(derived) != set(expected):
+            FAILURES.append(f"{plugin} derives {sorted(set(derived) ^ set(expected))} unexpectedly")
+        for field, value in expected.items():
+            if derived.get(field) != value:
+                FAILURES.append(f"{plugin} {field} derived as {derived.get(field)!r}, expected {value!r}")
     rejects("a package directory with no manifest", lambda: catalog.manifest("absent-plugin"))
     with tempfile.TemporaryDirectory() as directory:
         bare = pathlib.Path(directory) / "bare"

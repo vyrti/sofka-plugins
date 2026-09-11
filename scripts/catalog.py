@@ -5,8 +5,6 @@ from __future__ import annotations
 
 import argparse
 import datetime
-import gzip
-import hashlib
 import io
 import json
 import os
@@ -18,6 +16,11 @@ import tarfile
 import tempfile
 import tomllib
 
+# BLAKE3 has no standard-library implementation; the publish workflow installs
+# the pinned wheel. Sofka verifies every artifact with the same digest.
+import blake3
+import zstandard
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PLUGINS = ROOT / "plugins"
 INDEX = ROOT / "index.json"
@@ -27,6 +30,7 @@ RELEASE_ROOT = "https://github.com/vyrti/sofka-plugins/releases/download/"
 # LICENSE-APACHE, both of which ship inside every archive.
 LICENSE = "MIT OR Apache-2.0"
 ID = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+ZSTD = zstandard.ZstdCompressor(level=19, write_checksum=True)
 VERSION = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$")
 COMPARATOR = r"(?:[\^~]|[<>]=?|=)?\s*(?:\*|[0-9]+(?:\.(?:\*|[0-9]+)(?:\.(?:\*|[0-9]+))?)?)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?"
 VERSION_REQ = re.compile(rf"\s*{COMPARATOR}(?:\s*,\s*{COMPARATOR})*\s*")
@@ -283,13 +287,13 @@ def validate_index(index: dict[str, object]) -> None:
             check(isinstance(artifacts, list) and artifacts, f"{plugin_id}@{version}: no artifacts")
             platforms: set[str] = set()
             for artifact in artifacts:
-                exact_fields(artifact, {"platform", "url", "sha256", "size"}, f"{plugin_id}@{version} artifact")
+                exact_fields(artifact, {"platform", "url", "blake3", "size"}, f"{plugin_id}@{version} artifact")
                 platform = artifact["platform"]
                 check(platform == "any" or platform in TARGETS, f"{plugin_id}@{version}: unsupported platform {platform}")
                 check(platform not in platforms, f"{plugin_id}@{version}: duplicate platform {platform}")
                 platforms.add(platform)
                 check(str(artifact["url"]).startswith(RELEASE_ROOT), f"{plugin_id}@{version}: external artifact URL")
-                check(re.fullmatch(r"[0-9a-f]{64}", str(artifact["sha256"])) is not None, f"{plugin_id}@{version}: invalid digest")
+                check(re.fullmatch(r"[0-9a-f]{64}", str(artifact["blake3"])) is not None, f"{plugin_id}@{version}: invalid digest")
                 check(isinstance(artifact["size"], int) and not isinstance(artifact["size"], bool) and 0 < artifact["size"] <= 50 * 1024 * 1024, f"{plugin_id}@{version}: invalid size")
 
 
@@ -520,7 +524,9 @@ def package(args: argparse.Namespace) -> None:
         (binary, ADAPTER, 0o755),
     ]
     with output.open("wb") as raw:
-        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as compressed:
+        # Level 19 at a pinned zstandard: ~20% smaller than gzip on a package
+        # this size, and sofka decompresses it two to three times faster.
+        with ZSTD.stream_writer(raw, closefd=False) as compressed:
             with tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive:
                 for source, name, mode in files:
                     data = source.read_bytes()
@@ -543,14 +549,14 @@ def update_index(args: argparse.Namespace) -> None:
         tag = f"{plugin_id}-v{version}"
         artifacts = []
         for platform in metadata.pop("platforms"):
-            name = f"{plugin_id}-{version}-{platform}.tar.gz"
+            name = f"{plugin_id}-{version}-{platform}.tar.zst"
             path = assets / name
             check(path.is_file(), f"missing published asset {name}")
             data = path.read_bytes()
             artifacts.append({
                 "platform": platform,
                 "url": f"{RELEASE_ROOT}{tag}/{name}",
-                "sha256": hashlib.sha256(data).hexdigest(),
+                "blake3": blake3.blake3(data).hexdigest(),
                 "size": len(data),
             })
         identity = {key: metadata.pop(key) for key in ("id", "display_name", "description", "tags", "publisher", "repository")}

@@ -223,8 +223,11 @@ fn first_line(bytes: &[u8]) -> Option<&str> {
         .find(|line| !line.is_empty())
 }
 
+/// `serde_json::from_reader` pulls one byte per `Read::read`, so an unbuffered
+/// source costs a syscall per byte of the report. Popeye emits megabytes.
 fn parse(reader: impl Read) -> Result<Envelope, String> {
-    serde_json::from_reader(reader).map_err(|e| format!("invalid JSON from Popeye: {e}"))
+    serde_json::from_reader(std::io::BufReader::with_capacity(256 * 1024, reader))
+        .map_err(|e| format!("invalid JSON from Popeye: {e}"))
 }
 
 // ------------------------------------------------------------------ budgeting --
