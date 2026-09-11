@@ -58,5 +58,3 @@ sofka is showing.
   latency. For those, use a purpose-built chaos platform.
 - Recovery time includes image pulls, so a cold node makes a healthy workload
   look slow.
-
-Responsible maintainer: `@vyrti`.

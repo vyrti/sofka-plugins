@@ -51,5 +51,3 @@ for you.
   own, and a reviewed package is not a guarantee that oha has no defects.
 - A run that completes no requests still reports, because its error counts are
   usually what explains the failure.
-
-Responsible maintainer: `@vyrti`.
