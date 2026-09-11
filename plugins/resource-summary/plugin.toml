@@ -1,7 +1,7 @@
 schema_version = 1
 
 [package]
-version = "0.1.0"
+version = "0.2.0"
 authors = ["sofka maintainers"]
 license = "MIT OR Apache-2.0"
 description = "Show identity, context, and optionally labels for the selected Kubernetes resource."
