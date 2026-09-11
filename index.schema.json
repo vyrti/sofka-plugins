@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/nklmilojevic/sofka-plugins/index.schema.json",
+  "$id": "https://github.com/vyrti/sofka-plugins/index.schema.json",
   "title": "sofka official plugin catalog",
   "type": "object",
   "additionalProperties": false,

@@ -17,6 +17,9 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
       - id: changes
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
@@ -34,21 +37,32 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          components: clippy, rustfmt
+          python-version: "3.12"
       - name: Validate catalog and sources
         run: python3 scripts/catalog.py validate
-      - name: Reject replacement of a published version
+      - name: Test catalog validation
+        run: python3 scripts/test_catalog.py
+      - name: Reject replacement or modification of a published version
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: python3 scripts/catalog.py assert-unpublished --base "$BASE" --head "$HEAD"
+      # No workspace member lives outside plugins/, so a change that selects no
+      # plugin has no Rust to compile.
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        if: needs.changes.outputs.plugins != '[]'
+        with:
+          components: clippy, rustfmt
       - name: Check formatting
+        if: needs.changes.outputs.plugins != '[]'
         run: cargo fmt --all -- --check
       - name: Lint adapters
+        if: needs.changes.outputs.plugins != '[]'
         run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - name: Test adapters
+        if: needs.changes.outputs.plugins != '[]'
         run: cargo test --locked --workspace
 
   build:
@@ -62,6 +76,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           targets: ${{ matrix.target }}

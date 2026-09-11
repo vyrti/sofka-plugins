@@ -76,6 +76,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sofka-plugin-popeye"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "sofka-plugin-resource-summary"
 version = "0.1.0"
 dependencies = [
