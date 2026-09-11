@@ -25,7 +25,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 PLUGINS = ROOT / "plugins"
 INDEX = ROOT / "index.json"
 SCHEMA = ROOT / "index.schema.json"
-RELEASE_ROOT = "https://github.com/nklmilojevic/sofka-plugins/releases/download/"
+RELEASE_ROOT = "https://github.com/vyrti/sofka-plugins/releases/download/"
 # Every package is published under the repository licence; see LICENSE-MIT and
 # LICENSE-APACHE, both of which ship inside every archive.
 LICENSE = "MIT OR Apache-2.0"

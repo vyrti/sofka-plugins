@@ -5,7 +5,7 @@ version = "0.1.0"
 authors = ["sofka maintainers"]
 license = "MIT OR Apache-2.0"
 description = "Show identity, context, and optionally labels for the selected Kubernetes resource."
-repository = "https://github.com/nklmilojevic/sofka-plugins"
+repository = "https://github.com/vyrti/sofka-plugins"
 readme = "README.md"
 sofka = ">=0.25.5"
 platforms = [

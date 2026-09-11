@@ -5,7 +5,7 @@ version = "0.1.0"
 authors = ["vyrti"]
 license = "MIT OR Apache-2.0"
 description = "Scan the active context with Popeye and report findings by linter."
-repository = "https://github.com/nklmilojevic/sofka-plugins"
+repository = "https://github.com/vyrti/sofka-plugins"
 readme = "README.md"
 sofka = ">=0.25.5"
 platforms = [
