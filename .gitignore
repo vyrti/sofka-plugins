@@ -5,3 +5,4 @@
 /result-*
 __pycache__/
 *.pyc
+plugins/chaos-kill/rogue-guest/target/

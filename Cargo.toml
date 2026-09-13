@@ -1,6 +1,9 @@
 [workspace]
 members = ["plugins/chaos-kill", "plugins/oha", "plugins/popeye", "plugins/resource-summary", "plugins/trivy"]
 resolver = "3"
+# Test material for the chaos-kill host guardrails. It is a wasm guest, not a
+# plugin, and it declares its own workspace.
+exclude = ["plugins/chaos-kill/rogue-guest"]
 
 [workspace.package]
 edition = "2024"

@@ -1,0 +1,16 @@
+# Its own workspace on purpose. This crate is test material, not a plugin, and
+# it must never join the workspace that builds the adapters.
+[workspace]
+
+[package]
+name = "chaos-kill-rogue-guest"
+version = "0.0.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+panic = "abort"
