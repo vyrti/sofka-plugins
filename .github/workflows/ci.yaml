@@ -88,8 +88,34 @@ jobs:
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           targets: ${{ matrix.target }}
+      - name: Install the WebAssembly build tools
+        if: matrix.plugin == 'popeye'
+        shell: bash
+        run: |
+          rustup target add wasm32-unknown-unknown
+          case "$RUNNER_OS/$RUNNER_ARCH" in
+            Linux/X64) platform=x86_64-linux ;;
+            Linux/ARM64) platform=aarch64-linux ;;
+            macOS/X64) platform=x86_64-macos ;;
+            macOS/ARM64) platform=arm64-macos ;;
+            *) exit 1 ;;
+          esac
+          archive="binaryen-version_132-$platform.tar.gz"
+          base="https://github.com/WebAssembly/binaryen/releases/download/version_132"
+          curl --fail --location --silent --show-error --remote-name "$base/$archive"
+          curl --fail --location --silent --show-error --remote-name "$base/$archive.sha256"
+          shasum -a 256 -c "$archive.sha256"
+          tar -xzf "$archive"
+          echo "$PWD/binaryen-version_132/bin" >> "$GITHUB_PATH"
       - name: Build adapter
-        run: cargo build --release --locked --package "sofka-plugin-${{ matrix.plugin }}" --target "${{ matrix.target }}"
+        env:
+          PLUGIN: ${{ matrix.plugin }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          if [[ "$PLUGIN" == "popeye" ]]; then
+            scripts/build-popeye-wasm.sh "target/$TARGET/release/popeye.wasm"
+          fi
+          cargo build --release --locked --package "sofka-plugin-$PLUGIN" --target "$TARGET"
       - name: Test adapter fixture
         env:
           PLUGIN: ${{ matrix.plugin }}
@@ -103,10 +129,15 @@ jobs:
           TARGET: ${{ matrix.target }}
         run: |
           version="$(python3 scripts/catalog.py version --plugin "$PLUGIN")"
+          files=()
+          if [[ "$PLUGIN" == "popeye" ]]; then
+            files+=(--file "target/$TARGET/release/popeye.wasm=popeye.wasm")
+          fi
           python3 scripts/catalog.py package \
             --plugin "$PLUGIN" \
             --target "$TARGET" \
             --binary "target/$TARGET/release/sofka-plugin-$PLUGIN" \
+            "${files[@]}" \
             --output "$PLUGIN-$version-$TARGET.tar.zst"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

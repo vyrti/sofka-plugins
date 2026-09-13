@@ -24,6 +24,7 @@
               git
               jq
               nixpkgs-fmt
+              binaryen
             ];
             UV_PYTHON = "${pkgs.python312}/bin/python3";
             UV_PYTHON_DOWNLOADS = "never";

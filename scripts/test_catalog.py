@@ -513,6 +513,8 @@ def check_packaging() -> None:
         out = pathlib.Path(directory)
         binary = out / "adapter"
         binary.write_bytes(b"#!/bin/sh\nexit 0\n")
+        sidecar = out / "guest.wasm"
+        sidecar.write_bytes(b"\0asm")
         built = []
         for run in range(2):
             target = out / f"package-{run}.tar.zst"
@@ -521,6 +523,7 @@ def check_packaging() -> None:
                     plugin="resource-summary",
                     target="x86_64-unknown-linux-gnu",
                     binary=str(binary),
+                    file=[f"{sidecar}=popeye.wasm"],
                     output=str(target),
                 )
             )
@@ -536,6 +539,7 @@ def check_packaging() -> None:
             "LICENSE-MIT": 0o644,
             "LICENSE-APACHE": 0o644,
             catalog.ADAPTER: 0o755,
+            "popeye.wasm": 0o644,
         }
         if set(members) != set(expected):
             FAILURES.append(f"archive holds {sorted(members)}, expected {sorted(expected)}")
@@ -557,6 +561,7 @@ def check_packaging() -> None:
                     plugin="resource-summary",
                     target="powerpc-unknown-linux-gnu",
                     binary=str(binary),
+                    file=[],
                     output=str(out / "bad.tar.zst"),
                 )
             ),
@@ -576,6 +581,19 @@ def check_packaging() -> None:
                     plugin="resource-summary",
                     target="x86_64-unknown-linux-gnu",
                     binary=str(out / "absent"),
+                    file=[],
+                    output=str(out / "bad.tar.zst"),
+                )
+            ),
+        )
+        rejects(
+            "an unsafe package file name",
+            lambda: catalog.package(
+                argparse.Namespace(
+                    plugin="resource-summary",
+                    target="x86_64-unknown-linux-gnu",
+                    binary=str(binary),
+                    file=[f"{sidecar}=../guest.wasm"],
                     output=str(out / "bad.tar.zst"),
                 )
             ),

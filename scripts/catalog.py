@@ -109,6 +109,7 @@ def plugin_ids() -> list[str]:
 
 
 ADAPTER = "adapter"
+PACKAGE_FILE = re.compile(r"^[a-z0-9][a-z0-9.-]*$")
 PACKAGE_FIELDS = {"version", "display_name", "authors", "license", "description", "repository", "readme", "sofka", "platforms", "tags", "requirements"}
 REQUIRED_PACKAGE_FIELDS = {"version", "authors", "license", "description", "repository", "readme", "sofka", "platforms"}
 
@@ -757,6 +758,17 @@ def package(args: argparse.Namespace) -> None:
         (ROOT / "LICENSE-APACHE", "LICENSE-APACHE", 0o644),
         (binary, ADAPTER, 0o755),
     ]
+    names = {name for _, name, _ in files}
+    for value in getattr(args, "file", []):
+        source, separator, name = value.partition("=")
+        check(separator == "=" and source != "" and PACKAGE_FILE.fullmatch(name) is not None,
+              f"invalid package file {value!r}; use SOURCE=NAME")
+        check(name not in names, f"duplicate package file {name}")
+        path = pathlib.Path(source)
+        check(path.is_file(), f"missing package file {path}")
+        names.add(name)
+        files.append((path, name, 0o644))
+    files.sort(key=lambda item: item[1])
     with output.open("wb") as raw:
         # Level 19 at a pinned zstandard: ~20% smaller than gzip on a package
         # this size, and sofka decompresses it two to three times faster.
@@ -842,6 +854,7 @@ def main() -> None:
     packaging.add_argument("--plugin", required=True)
     packaging.add_argument("--target", required=True)
     packaging.add_argument("--binary", required=True)
+    packaging.add_argument("--file", action="append", default=[])
     packaging.add_argument("--output", required=True)
     update = commands.add_parser("update-index")
     update.add_argument("--commit", required=True)

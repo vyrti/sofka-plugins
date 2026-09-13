@@ -1,11 +1,26 @@
 # Popeye scan
 
 Runs [Popeye](https://github.com/derailed/popeye) against the context and
-namespace sofka is showing, and renders its JSON report as a sofka report: a
-summary, then one section per linter with that linter's tally and findings.
+namespace sofka is showing. A WebAssembly guest renders its JSON output as a
+sofka report with a summary and one section for each linter.
 
-Enter `:popeye` in sofka. The scan is read-only — it never changes a cluster —
-so it stays available in read-only mode.
+Enter `:popeye` in sofka. The scan is read-only. It never changes a cluster, so
+it stays available in read-only mode.
+
+## Runtime
+
+The native `adapter` runs the guest with Wasmi 2.0.0. The guest can request two
+host operations: read a saved report or run Popeye for the supplied context and
+namespace. It cannot select another executable or supply arbitrary arguments.
+The host limits guest memory to 128 MiB and limits source reports to 32 MiB.
+
+The release package contains `adapter` and `popeye.wasm`. For a local release
+build, install the `wasm32-unknown-unknown` Rust target and `wasm-opt`, then run:
+
+```sh
+scripts/build-popeye-wasm.sh target/release/popeye.wasm
+cargo build --release --locked --package sofka-plugin-popeye
+```
 
 ## Dependencies
 
