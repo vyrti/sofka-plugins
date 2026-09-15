@@ -1015,6 +1015,25 @@ mod tests {
         );
     }
 
+    /// A backup that ran clean: Velero leaves `errors`, `warnings` and
+    /// `progress` out of the status entirely rather than writing zeros, which
+    /// is the shape a real v1.18 cluster returns.
+    #[test]
+    fn a_status_without_counts_reports_zero_and_omits_progress() {
+        let mut request = expected("request.json");
+        request["object"]["status"] = json!({
+            "phase": "Completed",
+            "startTimestamp": "2026-09-14T02:00:01Z",
+            "completionTimestamp": "2026-09-14T02:00:02Z",
+        });
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let report = report(Action::Inspect, &bytes, &[]).unwrap();
+        let rows = report["sections"][0]["rows"].as_array().unwrap().clone();
+        assert!(rows.contains(&json!(["Errors", "0"])));
+        assert!(rows.contains(&json!(["Warnings", "0"])));
+        assert!(!rows.iter().any(|row| row[0] == "Progress"));
+    }
+
     // ---------------------------------------------------------- the adapter --
 
     #[test]
