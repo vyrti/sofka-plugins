@@ -73,7 +73,10 @@ impl<'de: 'a, 'a> Deserialize<'de> for Text<'a> {
                 Ok(Text::default())
             }
         }
-        deserializer.deserialize_str(Keep)
+        // `deserialize_str` refuses a null outright rather than offering it to
+        // the visitor. JSON describes itself, so ask for whatever is there and
+        // let `Keep` accept a string or a null and reject the rest.
+        deserializer.deserialize_any(Keep)
     }
 }
 
@@ -320,11 +323,7 @@ fn execute() -> Result<(), String> {
     if bytes.len() > REQUEST_MAX_BYTES {
         return Err("request exceeds 1 MiB".into());
     }
-    let request: Request =
-        serde_json::from_slice(&bytes).map_err(|e| format!("invalid request: {e}"))?;
-    if request.schema_version != 1 {
-        return Err("unsupported request schema_version".into());
-    }
+    let request = parse(&bytes)?;
     // Two steps, so everything that runs a tool happens here and the renderer
     // stays a pure function of these two buffers, which is also what lets the
     // report borrow from both instead of copying out of them.
@@ -333,6 +332,17 @@ fn execute() -> Result<(), String> {
     let mut stdout = std::io::BufWriter::new(std::io::stdout().lock());
     serde_json::to_writer(&mut stdout, &report).map_err(|e| e.to_string())?;
     stdout.flush().map_err(|e| e.to_string())
+}
+
+/// The request, borrowed from `bytes`, once it is one this adapter speaks.
+/// The report schema stays `1` as well, separate from the manifest schema.
+fn parse(bytes: &[u8]) -> Result<Request<'_>, String> {
+    let request: Request =
+        serde_json::from_slice(bytes).map_err(|e| format!("invalid request: {e}"))?;
+    if request.schema_version != 1 {
+        return Err("unsupported request schema_version".into());
+    }
+    Ok(request)
 }
 
 /// Everything the action needs from outside the request: nothing for an
@@ -1005,14 +1015,34 @@ mod tests {
         ));
     }
 
+    /// Kubernetes writes `null` rather than omitting a field it has cleared.
     #[test]
-    fn a_null_timestamp_reads_as_empty_rather_than_failing() {
-        let bytes = read("restore.json");
-        let request: Request = serde_json::from_slice(&bytes).unwrap();
-        assert_eq!(
-            request.object.unwrap().metadata.name.0,
-            "apps-restore-20260915"
+    fn a_null_string_reads_as_empty_rather_than_failing() {
+        let bytes = br#"{"kind": null, "status": {"phase": null, "failureReason": null}}"#;
+        let resource: Resource = serde_json::from_slice(bytes).unwrap();
+        assert_eq!(resource.kind.0, "");
+        assert_eq!(resource.status.phase.0, "");
+        assert_eq!(resource.status.failure_reason.0, "");
+        // Anything that is not a string is still a mistake worth reporting.
+        let error = serde_json::from_slice::<Resource>(br#"{"kind": 5}"#)
+            .map(|_| ())
+            .unwrap_err();
+        assert!(
+            error.to_string().contains("expected a string or null"),
+            "{error}"
         );
+    }
+
+    #[test]
+    fn a_request_of_another_schema_is_refused_before_anything_runs() {
+        let bytes = read("request.json");
+        assert!(parse(&bytes).is_ok());
+        let mut request = expected("request.json");
+        request["schema_version"] = json!(2);
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let refused = |bytes: &[u8]| parse(bytes).map(|_| ()).unwrap_err();
+        assert_eq!(refused(&bytes), "unsupported request schema_version");
+        assert!(refused(b"{").contains("invalid request"));
     }
 
     /// A backup that ran clean: Velero leaves `errors`, `warnings` and
@@ -1103,6 +1133,126 @@ mod tests {
         );
     }
 
+    // ------------------------------------------------------------- rendering --
+
+    /// The trigger fixture with the dry run turned off, which is the request
+    /// sofka sends once the operator confirms.
+    fn live_trigger() -> Vec<u8> {
+        let mut request = expected("trigger-request.json");
+        request["inputs"]["dry_run"] = json!("false");
+        serde_json::to_vec(&request).unwrap()
+    }
+
+    fn rows_of(report: &Value) -> Vec<Value> {
+        report["sections"][0]["rows"].as_array().unwrap().clone()
+    }
+
+    /// Sofka sends a null context when it has no explicit kubeconfig context.
+    #[test]
+    fn a_request_without_a_context_reports_it_as_inferred() {
+        let mut request = backup_request();
+        request["context"] = Value::Null;
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let report = report(Action::Inspect, &bytes, &[]).unwrap();
+        assert!(rows_of(&report).contains(&json!(["Context", "inferred"])));
+    }
+
+    #[test]
+    fn a_backup_velero_has_not_started_reports_no_phase_yet() {
+        let mut request = backup_request();
+        request["object"]["status"] = json!({});
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let report = report(Action::Inspect, &bytes, &[]).unwrap();
+        assert_eq!(rows_of(&report)[0], json!(["Verdict", "no phase yet"]));
+    }
+
+    #[test]
+    fn a_backup_of_every_namespace_says_so_rather_than_showing_nothing() {
+        let mut request = backup_request();
+        request["object"]["spec"]["includedNamespaces"] = json!([]);
+        request["object"]["spec"]["excludedNamespaces"] = json!([]);
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let report = report(Action::Inspect, &bytes, &[]).unwrap();
+        let sections = report["sections"].as_array().unwrap();
+        assert_eq!(sections.len(), 2, "the excluded section is dropped");
+        assert_eq!(
+            sections[1],
+            json!({"title": "Included namespaces", "lines": ["<all>"]})
+        );
+    }
+
+    #[test]
+    fn volume_snapshots_are_reported_only_when_the_spec_decides() {
+        let row = |value: Value| {
+            let mut request = backup_request();
+            request["object"]["spec"]["snapshotVolumes"] = value;
+            let bytes = serde_json::to_vec(&request).unwrap();
+            let report = report(Action::Inspect, &bytes, &[]).unwrap();
+            rows_of(&report)
+                .into_iter()
+                .find(|row| row[0] == "Volume snapshots")
+        };
+        assert_eq!(
+            row(json!(true)),
+            Some(json!(["Volume snapshots", "enabled"]))
+        );
+        assert_eq!(
+            row(json!(false)),
+            Some(json!(["Volume snapshots", "disabled"]))
+        );
+        assert_eq!(row(Value::Null), None);
+    }
+
+    #[test]
+    fn a_live_trigger_reports_the_velero_output_and_what_comes_next() {
+        let bytes = live_trigger();
+        let output = b"Backup request \"daily-apps-1\" submitted successfully.\n\n";
+        let report = report(Action::Trigger, &bytes, output).unwrap();
+        assert_eq!(rows_of(&report)[0], json!(["Verdict", "backup requested"]));
+        let titles: Vec<&str> = report["sections"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|section| section["title"].as_str().unwrap())
+            .collect();
+        assert_eq!(titles, ["Summary", "Command", "velero output", "Next"]);
+        // The blank line velero prints is dropped, not rendered as a row.
+        assert_eq!(
+            report["sections"][2]["lines"],
+            json!(["Backup request \"daily-apps-1\" submitted successfully."])
+        );
+    }
+
+    #[test]
+    fn a_silent_trigger_says_so_rather_than_showing_an_empty_section() {
+        let bytes = live_trigger();
+        let report = report(Action::Trigger, &bytes, b"  \n").unwrap();
+        assert_eq!(report["sections"][2]["lines"], json!(["<no output>"]));
+    }
+
+    #[test]
+    fn a_paused_schedule_is_reported_as_paused() {
+        let mut request = expected("trigger-request.json");
+        request["object"]["spec"]["paused"] = json!(true);
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let report = report(Action::Trigger, &bytes, &[]).unwrap();
+        assert!(rows_of(&report).contains(&json!(["Paused", "yes"])));
+    }
+
+    #[test]
+    fn locations_without_a_default_say_none() {
+        let request = read("locations-request.json");
+        let list = json!({"items": [{
+            "apiVersion": "velero.io/v1", "kind": "BackupStorageLocation",
+            "metadata": {"name": "only", "namespace": "velero"},
+            "status": {"phase": "Unavailable"},
+        }]});
+        let source = serde_json::to_vec(&list).unwrap();
+        let report = report(Action::Locations, &request, &source).unwrap();
+        assert_eq!(rows_of(&report)[0], json!(["Verdict", "0 of 1 available"]));
+        assert!(rows_of(&report).contains(&json!(["Default", "none"])));
+    }
+
     // -------------------------------------------------------------- refusal --
 
     fn refuse(action: Action, request: Value, source: &[u8]) -> String {
@@ -1157,6 +1307,34 @@ mod tests {
     }
 
     #[test]
+    fn an_unnamed_selection_is_refused() {
+        let mut request = backup_request();
+        request["name"] = json!("");
+        let error = refuse(Action::Inspect, request, &[]);
+        assert_eq!(error, "no Backup or Restore selected");
+    }
+
+    #[test]
+    fn an_object_from_another_namespace_is_refused() {
+        let mut request = backup_request();
+        request["object"]["metadata"]["namespace"] = json!("other");
+        let error = refuse(Action::Inspect, request, &[]);
+        assert!(error.contains("is namespace \"other\""), "{error}");
+    }
+
+    #[test]
+    fn an_object_with_no_kind_at_all_is_described_rather_than_guessed() {
+        let mut request = backup_request();
+        request["object"] =
+            json!({"metadata": {"name": "daily-apps-20260914020000", "namespace": "velero"}});
+        let error = refuse(Action::Inspect, request, &[]);
+        assert!(
+            error.contains("a <no kind> from <no apiVersion>"),
+            "{error}"
+        );
+    }
+
+    #[test]
     fn a_list_of_something_other_than_locations_is_refused() {
         let request = read("locations-request.json");
         let list = json!({"items": [{"apiVersion": "v1", "kind": "ConfigMap"}]});
@@ -1182,5 +1360,179 @@ mod tests {
         assert!(report(Action::Locations, &request, b"{").is_err());
         let trigger = read("trigger-request.json");
         assert!(report(Action::Trigger, &trigger, &[0xff]).is_err());
+    }
+
+    // ----------------------------------------------------------- the pipes --
+
+    #[test]
+    fn a_capture_is_bounded_but_still_drained_to_the_end() {
+        let mut reader = std::io::Cursor::new(vec![b'x'; 4096]);
+        let captured = bounded_read(&mut reader, 1024).unwrap();
+        assert_eq!(captured.bytes.len(), 1024);
+        assert!(captured.truncated);
+        // Draining matters: a child blocked on a full pipe never exits.
+        assert_eq!(reader.position(), 4096);
+        let captured = bounded_read(&b"short"[..], 1024).unwrap();
+        assert_eq!(captured.bytes, b"short");
+        assert!(!captured.truncated);
+    }
+
+    #[test]
+    fn a_capture_propagates_a_read_failure_and_retries_an_interrupt() {
+        struct Failing;
+        impl Read for Failing {
+            fn read(&mut self, _: &mut [u8]) -> std::io::Result<usize> {
+                Err(std::io::Error::other("boom"))
+            }
+        }
+        assert_eq!(bounded_read(Failing, 1024).unwrap_err().to_string(), "boom");
+
+        struct Interrupted(u8);
+        impl Read for Interrupted {
+            fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+                self.0 += 1;
+                match self.0 {
+                    1 => Err(std::io::Error::from(ErrorKind::Interrupted)),
+                    2 => {
+                        buf[0] = b'o';
+                        Ok(1)
+                    }
+                    _ => Ok(0),
+                }
+            }
+        }
+        assert_eq!(bounded_read(Interrupted(0), 1024).unwrap().bytes, b"o");
+    }
+
+    #[test]
+    fn diagnostics_are_forwarded_with_a_notice_and_a_broken_writer_is_survived() {
+        let mut forwarded = Vec::new();
+        let captured = capture(&b"loud"[..], 2, Some(&mut forwarded)).unwrap();
+        assert_eq!(captured.bytes, b"lo");
+        assert!(captured.truncated);
+        let forwarded = String::from_utf8(forwarded).unwrap();
+        assert!(forwarded.starts_with("lo"), "{forwarded}");
+        assert!(
+            forwarded.contains("velero diagnostics truncated"),
+            "{forwarded}"
+        );
+
+        /// Activity is a courtesy; losing it must not lose the report.
+        struct Broken;
+        impl std::io::Write for Broken {
+            fn write(&mut self, _: &[u8]) -> std::io::Result<usize> {
+                Err(std::io::Error::from(ErrorKind::BrokenPipe))
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                Err(std::io::Error::from(ErrorKind::BrokenPipe))
+            }
+        }
+        let mut broken = Broken;
+        let captured = capture(&b"loud"[..], 64, Some(&mut broken)).unwrap();
+        assert_eq!(captured.bytes, b"loud");
+    }
+
+    #[test]
+    fn a_missing_tool_points_at_its_installation() {
+        let error = execute_tool("velero-no-such-tool", &[], VELERO_INSTALL).unwrap_err();
+        assert!(
+            error.contains("failed to start velero-no-such-tool"),
+            "{error}"
+        );
+        assert!(error.contains(VELERO_INSTALL), "{error}");
+    }
+
+    /// A fake tool on disk; the adapter never starts a shell itself.
+    #[cfg(unix)]
+    fn fake_tool(name: &str, script: &str) -> (std::path::PathBuf, std::path::PathBuf) {
+        use std::os::unix::fs::PermissionsExt as _;
+        let dir = std::env::temp_dir().join(format!("velero-{name}-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join(name);
+        std::fs::write(&path, format!("#!/bin/sh\n{script}\n")).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+        (dir, path)
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_failing_tool_reports_its_stderr_and_not_its_partial_stdout() {
+        let (dir, tool) = fake_tool(
+            "failing",
+            "echo '{\"items\":['\necho 'An error occurred: schedules.velero.io not found' >&2\nexit 1",
+        );
+        let args = vec!["get".to_string()];
+        let error = execute_tool(tool.to_str().unwrap(), &args, "").unwrap_err();
+        assert!(error.contains("failing get failed"), "{error}");
+        assert!(error.contains("schedules.velero.io not found"), "{error}");
+        assert!(!error.contains("items"), "{error}");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_silent_failing_tool_falls_back_to_its_stdout() {
+        let (dir, tool) = fake_tool("quiet", "echo 'nothing to see'\nexit 2");
+        let error = execute_tool(tool.to_str().unwrap(), &[], "").unwrap_err();
+        assert!(error.contains("nothing to see"), "{error}");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_tool_that_floods_stderr_still_finishes() {
+        let (dir, tool) = fake_tool(
+            "noisy",
+            "head -c 2097152 /dev/zero | tr '\\0' e >&2\nprintf 'done\\n'",
+        );
+        let output = execute_tool(tool.to_str().unwrap(), &[], "").unwrap();
+        assert_eq!(output, b"done\n");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_tool_that_writes_over_the_limit_is_an_error_not_a_partial_report() {
+        let (dir, tool) = fake_tool("flood", "head -c 2097152 /dev/zero | tr '\\0' e");
+        let error = execute_tool(tool.to_str().unwrap(), &[], "").unwrap_err();
+        assert!(error.contains("more than 1 MiB"), "{error}");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn the_replay_file_is_bounded_and_a_missing_one_is_an_error() {
+        let dir = std::env::temp_dir().join(format!("velero-replay-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let large = dir.join("large.json");
+        std::fs::write(&large, vec![b'x'; REPLAY_MAX_BYTES + 1]).unwrap();
+        let replay_error = |path: std::path::PathBuf| {
+            let mut request = expected("locations-request.json");
+            request["inputs"]["replay"] = json!(path.to_string_lossy());
+            let bytes = serde_json::to_vec(&request).unwrap();
+            let request = parse(&bytes).unwrap();
+            fetch(Action::Locations, &request).unwrap_err()
+        };
+        assert!(replay_error(large).contains("exceeds 1 MiB"));
+        assert!(replay_error(dir.join("missing.json")).contains("cannot read saved output"));
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// An inspection replays a saved object in place of the selected one, and
+    /// without a replay it reads nothing at all.
+    #[test]
+    fn an_inspection_reads_only_what_the_replay_names() {
+        let saved = format!("{}/fixtures/locations.json", env!("CARGO_MANIFEST_DIR"));
+        let mut request = backup_request();
+        request["inputs"]["replay"] = json!(saved);
+        let bytes = serde_json::to_vec(&request).unwrap();
+        let request = parse(&bytes).unwrap();
+        assert_eq!(
+            fetch(Action::Inspect, &request).unwrap(),
+            read("locations.json")
+        );
+
+        let bytes = read("request.json");
+        let request = parse(&bytes).unwrap();
+        assert!(fetch(Action::Inspect, &request).unwrap().is_empty());
     }
 }
