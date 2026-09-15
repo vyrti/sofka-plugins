@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "context": "development",
+  "cluster": "development",
+  "namespace": "",
+  "resource": "",
+  "name": "",
+  "filter": "",
+  "inputs": {
+    "namespace": "velero",
+    "replay": "plugins/velero/fixtures/locations.json"
+  },
+  "object": null,
+  "forward": null
+}

@@ -14,6 +14,7 @@ GitHub Release assets and are never committed to Git.
 | [`oha`](plugins/oha)                           | [oha](https://github.com/hatoo/oha) on `PATH`                                                           |
 | [`popeye`](plugins/popeye)                     | [Popeye](https://github.com/derailed/popeye) on `PATH`                                                  |
 | [`trivy`](plugins/trivy)                       | [Trivy](https://trivy.dev) on `PATH`                                                                    |
+| [`velero`](plugins/velero)                     | [Velero CLI](https://velero.io/docs/main/basic-install/) to trigger a schedule, `kubectl` for locations; **creates backups** |
 | [`resource-summary`](plugins/resource-summary) | nothing                                                                                                 |
 
 Packages use manifest schema `2` and require Sofka `>=0.27.1`. Each package can
@@ -78,6 +79,7 @@ The Windows targets follow the published upstream tool binaries, checked on
 | Popeye           | [Popeye 0.22.1](https://github.com/derailed/popeye/releases/tag/v0.22.1)                                                                                    | Yes            | Yes                      |
 | Trivy            | [Trivy 0.74.0](https://github.com/aquasecurity/trivy/releases/tag/v0.74.0)                                                                                  | Yes            | No upstream ARM64 binary |
 | HTTP benchmark   | [oha 1.16.0](https://github.com/hatoo/oha/releases/tag/v1.16.0)                                                                                             | Yes            | No upstream ARM64 binary |
+| Velero           | [Velero 1.18.2](https://github.com/vmware-tanzu/velero/releases/tag/v1.18.2) to trigger a schedule, kubectl 1.37.0 for locations                            | Yes            | Locations and inspection only; no upstream Velero ARM64 binary |
 
 Install the Windows tools listed by each package and put their `.exe` files on
 `PATH`. ARM64 support is not declared for Trivy or oha based on x86_64 emulation.

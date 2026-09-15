@@ -42,6 +42,10 @@ else:
             sys.stdout.write((root / "cert-manager/fixtures/status.txt").read_text())
         else:
             sys.stdout.write("renewal requested\n")
+    elif name == "velero":
+        sys.stdout.write('Backup request "daily-apps-20260915103000" submitted successfully.\n')
+    elif name == "kubectl" and any("backupstoragelocations" in arg for arg in sys.argv):
+        sys.stdout.write((root / "velero/fixtures/locations.json").read_text())
     elif name == "kubectl":
         request = json.loads((root / "cert-manager/fixtures/inspect-request.json").read_text())
         request["object"]["data"]["tls.key"] = "PRIVATE_KEY_SENTINEL"
@@ -61,7 +65,7 @@ class ActivityTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix="sofka-activity-test-")
         self.addCleanup(temporary.cleanup)
         self.tools = Path(temporary.name)
-        for name in ["trivy", "popeye", "oha", "cmctl", "kubectl"]:
+        for name in ["trivy", "popeye", "oha", "cmctl", "kubectl", "velero"]:
             tool = self.tools / name
             tool.write_text(f"#!{sys.executable}\n" + MOCK)
             tool.chmod(0o755)
@@ -109,6 +113,13 @@ class ActivityTests(unittest.TestCase):
             renew = fixture("cert-manager", "renew-request.json")
             renew["inputs"]["dry_run"] = dry_run
             cases.append(("cert-manager", renew, ["renew"]))
+        locations = fixture("velero", "locations-request.json")
+        locations["inputs"].pop("replay")
+        cases.append(("velero", locations, ["locations"]))
+        for dry_run in ["true", "false"]:
+            trigger = fixture("velero", "trigger-request.json")
+            trigger["inputs"]["dry_run"] = dry_run
+            cases.append(("velero", trigger, ["trigger"]))
         for plugin, request, args in cases:
             with self.subTest(plugin=plugin, args=args, inputs=request["inputs"]):
                 normal = self.run_adapter(plugin, request, args)

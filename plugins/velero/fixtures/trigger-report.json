@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "title": "Trigger backup schedule",
+  "sections": [
+    {
+      "title": "Summary",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Verdict",
+          "dry run, nothing was triggered"
+        ],
+        [
+          "Context",
+          "development"
+        ],
+        [
+          "Namespace",
+          "velero"
+        ],
+        [
+          "Schedule",
+          "daily-apps"
+        ],
+        [
+          "Cron",
+          "0 2 * * *"
+        ],
+        [
+          "Schedule phase",
+          "Enabled"
+        ],
+        [
+          "Last backup",
+          "2026-09-14T02:00:00Z"
+        ]
+      ]
+    },
+    {
+      "title": "Command",
+      "lines": [
+        "velero backup create --from-schedule daily-apps --namespace velero --kubecontext development"
+      ]
+    },
+    {
+      "title": "Notice",
+      "lines": [
+        "Re-run with dry_run=false to create a backup from this schedule."
+      ]
+    }
+  ]
+}

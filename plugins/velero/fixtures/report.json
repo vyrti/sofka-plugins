@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "title": "Velero backup",
+  "sections": [
+    {
+      "title": "Summary",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Verdict",
+          "PartiallyFailed"
+        ],
+        [
+          "Context",
+          "development"
+        ],
+        [
+          "Namespace",
+          "velero"
+        ],
+        [
+          "Backup",
+          "daily-apps-20260914020000"
+        ],
+        [
+          "From schedule",
+          "daily-apps"
+        ],
+        [
+          "Storage location",
+          "default"
+        ],
+        [
+          "Started",
+          "2026-09-14T02:00:01Z"
+        ],
+        [
+          "Completed",
+          "2026-09-14T02:04:37Z"
+        ],
+        [
+          "Expires",
+          "2026-10-14T02:00:00Z"
+        ],
+        [
+          "TTL",
+          "720h0m0s"
+        ],
+        [
+          "Volume snapshots",
+          "enabled"
+        ],
+        [
+          "Progress",
+          "810 of 812 items"
+        ],
+        [
+          "Errors",
+          "2"
+        ],
+        [
+          "Warnings",
+          "5"
+        ]
+      ]
+    },
+    {
+      "title": "Included namespaces",
+      "lines": [
+        "apps",
+        "data"
+      ]
+    },
+    {
+      "title": "Excluded namespaces",
+      "lines": [
+        "kube-system"
+      ]
+    }
+  ]
+}

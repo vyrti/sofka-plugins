@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "context": "development",
+  "cluster": "development",
+  "namespace": "velero",
+  "resource": "restores",
+  "name": "apps-restore-20260915",
+  "filter": "",
+  "inputs": {},
+  "object": {
+    "apiVersion": "velero.io/v1",
+    "kind": "Restore",
+    "metadata": {
+      "name": "apps-restore-20260915",
+      "namespace": "velero",
+      "creationTimestamp": null
+    },
+    "spec": {
+      "backupName": "daily-apps-20260914020000",
+      "scheduleName": "daily-apps",
+      "includedNamespaces": ["apps"],
+      "restorePVs": true
+    },
+    "status": {
+      "phase": "Failed",
+      "startTimestamp": "2026-09-15T09:12:01Z",
+      "completionTimestamp": "2026-09-15T09:13:44Z",
+      "errors": 1,
+      "warnings": 0,
+      "progress": {
+        "totalItems": 214,
+        "itemsRestored": 118
+      },
+      "validationErrors": ["namespace \"apps\" is terminating"],
+      "failureReason": "unable to restore \"apps/api\": admission webhook denied the request"
+    }
+  },
+  "forward": null
+}

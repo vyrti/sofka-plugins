@@ -6,6 +6,7 @@ members = [
   "plugins/popeye",
   "plugins/resource-summary",
   "plugins/trivy",
+  "plugins/velero",
 ]
 resolver = "3"
 

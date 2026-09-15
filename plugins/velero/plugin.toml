@@ -1,0 +1,91 @@
+schema_version = 2
+
+[package]
+display_name = "Velero"
+version = "0.1.0"
+authors = ["vyrti"]
+license = "MIT OR Apache-2.0"
+description = "Inspect Velero backups and restores, trigger a backup from a schedule, and report backup storage location health."
+repository = "https://github.com/nklmilojevic/sofka-plugins"
+readme = "README.md"
+sofka = ">=0.27.4"
+platforms = [
+  "x86_64-unknown-linux-gnu",
+  "aarch64-unknown-linux-gnu",
+  "x86_64-apple-darwin",
+  "aarch64-apple-darwin",
+  "x86_64-pc-windows-msvc",
+  "aarch64-pc-windows-msvc",
+]
+tags = ["velero", "backup", "restore", "disaster-recovery", "schedules", "report"]
+
+# velero triggers a backup; kubectl reads the storage locations. Inspection
+# needs neither, so a cluster with only one of the two still has two commands.
+[[package.requirements]]
+name = "velero"
+install = "Install the Velero CLI from https://velero.io/docs/main/basic-install/"
+
+[[package.requirements]]
+name = "kubectl"
+install = "Install kubectl from https://kubernetes.io/docs/tasks/tools/"
+
+[[commands]]
+name = "Inspect backup or restore"
+palette = "velero-inspect"
+command = "./adapter"
+args = ["inspect"]
+# A Velero Backup and Restore carry their whole result in `status`, and sofka
+# already sends the selected object, so this command runs no tool at all.
+requires = []
+scopes = ["backups", "restores"]
+target = "selection"
+output = "report"
+mutating = false
+timeout = "30s"
+
+[commands.inputs.replay]
+type = "string"
+default = ""
+
+[[commands]]
+name = "Trigger backup schedule"
+palette = "velero-trigger"
+command = "./adapter"
+args = ["trigger"]
+requires = ["velero"]
+install = "Install the Velero CLI from https://velero.io/docs/main/basic-install/"
+scopes = ["schedules"]
+target = "selection"
+output = "report"
+# Creates a Backup, which copies data to object storage and can take volume
+# snapshots: blocked in read-only mode and confirmed every time. Not marked
+# dangerous, because it adds a backup and removes nothing.
+mutating = true
+confirm = true
+timeout = "2m"
+
+[commands.inputs.dry_run]
+type = "boolean"
+default = "false"
+
+[[commands]]
+name = "Backup storage locations"
+palette = "velero-locations"
+command = "./adapter"
+args = ["locations"]
+requires = ["kubectl"]
+install = "Install kubectl from https://kubernetes.io/docs/tasks/tools/"
+# The locations belong to the Velero installation, not to the selected
+# resource, so this command reads the context and not a selection.
+target = "context"
+output = "report"
+mutating = false
+timeout = "1m"
+
+[commands.inputs.namespace]
+type = "string"
+default = "velero"
+
+[commands.inputs.replay]
+type = "string"
+default = ""

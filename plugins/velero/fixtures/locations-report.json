@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "title": "Backup storage locations",
+  "sections": [
+    {
+      "title": "Summary",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Verdict",
+          "1 of 2 available"
+        ],
+        [
+          "Context",
+          "development"
+        ],
+        [
+          "Namespace",
+          "velero"
+        ],
+        [
+          "Default",
+          "default"
+        ]
+      ]
+    },
+    {
+      "title": "default",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Phase",
+          "Available"
+        ],
+        [
+          "Provider",
+          "aws"
+        ],
+        [
+          "Bucket",
+          "cluster-backups"
+        ],
+        [
+          "Prefix",
+          "development"
+        ],
+        [
+          "Access mode",
+          "ReadWrite"
+        ],
+        [
+          "Default",
+          "yes"
+        ],
+        [
+          "Validation every",
+          "1m0s"
+        ],
+        [
+          "Last validated",
+          "2026-09-15T10:31:12Z"
+        ],
+        [
+          "Last synced",
+          "2026-09-15T10:30:44Z"
+        ]
+      ]
+    },
+    {
+      "title": "offsite",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Phase",
+          "Unavailable"
+        ],
+        [
+          "Provider",
+          "gcp"
+        ],
+        [
+          "Bucket",
+          "offsite-backups"
+        ],
+        [
+          "Access mode",
+          "ReadOnly"
+        ],
+        [
+          "Last validated",
+          "2026-09-15T10:29:58Z"
+        ],
+        [
+          "Message",
+          "backup store contains invalid top-level directories: [restic]"
+        ]
+      ]
+    }
+  ]
+}

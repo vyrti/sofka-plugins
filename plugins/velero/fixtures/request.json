@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "context": "development",
+  "cluster": "development",
+  "namespace": "velero",
+  "resource": "backups",
+  "name": "daily-apps-20260914020000",
+  "filter": "",
+  "inputs": {
+    "replay": ""
+  },
+  "object": {
+    "apiVersion": "velero.io/v1",
+    "kind": "Backup",
+    "metadata": {
+      "name": "daily-apps-20260914020000",
+      "namespace": "velero",
+      "creationTimestamp": "2026-09-14T02:00:00Z",
+      "labels": {
+        "velero.io/schedule-name": "daily-apps",
+        "velero.io/storage-location": "default"
+      }
+    },
+    "spec": {
+      "includedNamespaces": ["apps", "data"],
+      "excludedNamespaces": ["kube-system"],
+      "storageLocation": "default",
+      "ttl": "720h0m0s",
+      "snapshotVolumes": true,
+      "defaultVolumesToFsBackup": false
+    },
+    "status": {
+      "version": 1,
+      "formatVersion": "1.1.0",
+      "phase": "PartiallyFailed",
+      "startTimestamp": "2026-09-14T02:00:01Z",
+      "completionTimestamp": "2026-09-14T02:04:37Z",
+      "expiration": "2026-10-14T02:00:00Z",
+      "errors": 2,
+      "warnings": 5,
+      "progress": {
+        "totalItems": 812,
+        "itemsBackedUp": 810
+      }
+    }
+  },
+  "forward": null
+}
