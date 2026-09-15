@@ -1,0 +1,72 @@
+{
+  "items": [
+    {
+      "name": "legacy-ingress",
+      "namespace": "apps",
+      "api": {
+        "version": "extensions/v1beta1",
+        "kind": "Ingress",
+        "deprecated-in": "v1.14.0",
+        "removed-in": "v1.22.0",
+        "replacement-api": "networking.k8s.io/v1",
+        "replacement-available-in": "v1.19.0",
+        "component": "k8s"
+      },
+      "deprecated": true,
+      "removed": true,
+      "replacementAvailable": true
+    },
+    {
+      "name": "restricted",
+      "api": {
+        "version": "policy/v1beta1",
+        "kind": "PodSecurityPolicy",
+        "deprecated-in": "v1.21.0",
+        "removed-in": "v1.25.0",
+        "replacement-api": "",
+        "replacement-available-in": "",
+        "component": "k8s"
+      },
+      "deprecated": true,
+      "removed": true,
+      "replacementAvailable": false
+    },
+    {
+      "name": "nightly-report",
+      "namespace": "data",
+      "api": {
+        "version": "batch/v1beta1",
+        "kind": "CronJob",
+        "deprecated-in": "v1.21.0",
+        "removed-in": "v1.25.0",
+        "replacement-api": "batch/v1",
+        "replacement-available-in": "v1.21.0",
+        "component": "k8s"
+      },
+      "deprecated": true,
+      "removed": true,
+      "replacementAvailable": true
+    },
+    {
+      "name": "api",
+      "namespace": "apps",
+      "api": {
+        "version": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler",
+        "deprecated-in": "v1.23.0",
+        "removed-in": "v1.26.0",
+        "replacement-api": "autoscaling/v2",
+        "replacement-available-in": "",
+        "component": "k8s"
+      },
+      "deprecated": true,
+      "removed": false,
+      "replacementAvailable": false
+    }
+  ],
+  "target-versions": {
+    "cert-manager": "v1.5.3",
+    "istio": "v1.11.0",
+    "k8s": "v1.25.0"
+  }
+}

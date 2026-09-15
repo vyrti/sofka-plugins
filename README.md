@@ -14,6 +14,7 @@ GitHub Release assets and are never committed to Git.
 | [`oha`](plugins/oha)                           | [oha](https://github.com/hatoo/oha) on `PATH`                                                           |
 | [`popeye`](plugins/popeye)                     | [Popeye](https://github.com/derailed/popeye) on `PATH`                                                  |
 | [`trivy`](plugins/trivy)                       | [Trivy](https://trivy.dev) on `PATH`                                                                    |
+| [`deprecated-apis`](plugins/deprecated-apis)   | [Pluto](https://pluto.docs.fairwinds.com) or [kubent](https://github.com/doitintl/kube-no-trouble) on `PATH` |
 | [`resource-summary`](plugins/resource-summary) | nothing                                                                                                 |
 
 Packages use manifest schema `2` and require Sofka `>=0.27.1`. Each package can
@@ -78,6 +79,7 @@ The Windows targets follow the published upstream tool binaries, checked on
 | Popeye           | [Popeye 0.22.1](https://github.com/derailed/popeye/releases/tag/v0.22.1)                                                                                    | Yes            | Yes                      |
 | Trivy            | [Trivy 0.74.0](https://github.com/aquasecurity/trivy/releases/tag/v0.74.0)                                                                                  | Yes            | No upstream ARM64 binary |
 | HTTP benchmark   | [oha 1.16.0](https://github.com/hatoo/oha/releases/tag/v1.16.0)                                                                                             | Yes            | No upstream ARM64 binary |
+| Deprecated APIs  | [Pluto 5.24.4](https://github.com/FairwindsOps/pluto/releases/tag/v5.24.4), [kubent 0.7.3](https://github.com/doitintl/kube-no-trouble/releases/tag/0.7.3)   | Yes            | Pluto only; no upstream kubent ARM64 binary |
 
 Install the Windows tools listed by each package and put their `.exe` files on
 `PATH`. ARM64 support is not declared for Trivy or oha based on x86_64 emulation.

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "context": "development",
+  "cluster": "development",
+  "namespace": "apps",
+  "resource": "horizontalpodautoscalers",
+  "name": "api",
+  "filter": "",
+  "inputs": {
+    "report": "plugins/deprecated-apis/fixtures/resource.json"
+  },
+  "object": {
+    "apiVersion": "autoscaling/v2beta2",
+    "kind": "HorizontalPodAutoscaler",
+    "metadata": {
+      "name": "api",
+      "namespace": "apps"
+    },
+    "spec": {
+      "minReplicas": 2
+    }
+  },
+  "forward": null
+}

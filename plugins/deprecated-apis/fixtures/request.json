@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "context": "development",
+  "cluster": "development",
+  "namespace": "",
+  "resource": "",
+  "name": "",
+  "filter": "",
+  "inputs": {
+    "namespace": "",
+    "target_version": "",
+    "report": "plugins/deprecated-apis/fixtures/pluto.json"
+  },
+  "object": null,
+  "forward": null
+}

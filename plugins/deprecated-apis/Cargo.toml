@@ -1,0 +1,12 @@
+[package]
+name = "sofka-plugin-deprecated-apis"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+# raw_value keeps the selected object as the exact bytes sofka sent, so
+# pluto checks what the API server returned rather than a re-serialization.
+serde_json = { workspace = true, features = ["raw_value"] }

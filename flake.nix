@@ -35,7 +35,7 @@
         {
           default = pkgs.mkShell common;
           tools = pkgs.mkShell (common // {
-            packages = common.packages ++ (with pkgs; [ kubectl cmctl oha popeye trivy ]);
+            packages = common.packages ++ (with pkgs; [ kubectl cmctl oha popeye trivy pluto kubent ]);
           });
         });
 

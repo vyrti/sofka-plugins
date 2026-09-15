@@ -1,0 +1,38 @@
+[
+  {
+    "Name": "legacy-ingress",
+    "Namespace": "apps",
+    "Kind": "Ingress",
+    "ApiVersion": "extensions/v1beta1",
+    "RuleSet": "Deprecated APIs removed in 1.22",
+    "ReplaceWith": "networking.k8s.io/v1",
+    "Since": "1.19.0"
+  },
+  {
+    "Name": "nightly-report",
+    "Namespace": "data",
+    "Kind": "CronJob",
+    "ApiVersion": "batch/v1beta1",
+    "RuleSet": "Deprecated APIs removed in 1.25",
+    "ReplaceWith": "batch/v1",
+    "Since": "1.21.0"
+  },
+  {
+    "Name": "restricted",
+    "Namespace": "<undefined>",
+    "Kind": "PodSecurityPolicy",
+    "ApiVersion": "policy/v1beta1",
+    "RuleSet": "Deprecated APIs removed in 1.25",
+    "ReplaceWith": "<removed>",
+    "Since": "1.21.0"
+  },
+  {
+    "Name": "api",
+    "Namespace": "apps",
+    "Kind": "HorizontalPodAutoscaler",
+    "ApiVersion": "autoscaling/v2beta2",
+    "RuleSet": "Deprecated APIs removed in 1.26",
+    "ReplaceWith": "autoscaling/v2",
+    "Since": "1.23.0"
+  }
+]

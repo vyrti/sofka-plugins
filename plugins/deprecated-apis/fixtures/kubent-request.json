@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "context": "development",
+  "cluster": "development",
+  "namespace": "",
+  "resource": "",
+  "name": "",
+  "filter": "",
+  "inputs": {
+    "target_version": "",
+    "report": "plugins/deprecated-apis/fixtures/kubent.json"
+  },
+  "object": null,
+  "forward": null
+}

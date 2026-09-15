@@ -2,6 +2,7 @@
 members = [
   "plugins/cert-manager",
   "plugins/chaos-kill",
+  "plugins/deprecated-apis",
   "plugins/oha",
   "plugins/popeye",
   "plugins/resource-summary",

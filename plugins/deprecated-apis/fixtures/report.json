@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "title": "Deprecated APIs (pluto)",
+  "sections": [
+    {
+      "title": "Summary",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Verdict",
+          "3 removed, 1 deprecated"
+        ],
+        [
+          "Context",
+          "development"
+        ],
+        [
+          "Target versions",
+          "cert-manager=v1.5.3 istio=v1.11.0 k8s=v1.25.0"
+        ],
+        [
+          "Findings",
+          "4"
+        ]
+      ]
+    },
+    {
+      "title": "Removed with no replacement",
+      "lines": [
+        "restricted \u2014 PodSecurityPolicy policy/v1beta1 \u2192 no replacement (removed in v1.25.0)"
+      ]
+    },
+    {
+      "title": "Removed",
+      "lines": [
+        "apps/legacy-ingress \u2014 Ingress extensions/v1beta1 \u2192 networking.k8s.io/v1 (removed in v1.22.0)",
+        "data/nightly-report \u2014 CronJob batch/v1beta1 \u2192 batch/v1 (removed in v1.25.0)"
+      ]
+    },
+    {
+      "title": "Deprecated",
+      "lines": [
+        "apps/api \u2014 HorizontalPodAutoscaler autoscaling/v2beta2 \u2192 autoscaling/v2 (deprecated in v1.23.0, removed in v1.26.0)"
+      ]
+    }
+  ]
+}

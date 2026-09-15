@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "name": "api",
+      "namespace": "apps",
+      "api": {
+        "version": "autoscaling/v2beta2",
+        "kind": "HorizontalPodAutoscaler",
+        "deprecated-in": "v1.23.0",
+        "removed-in": "v1.26.0",
+        "replacement-api": "autoscaling/v2",
+        "replacement-available-in": "",
+        "component": "k8s"
+      },
+      "deprecated": true,
+      "removed": false,
+      "replacementAvailable": false
+    }
+  ],
+  "target-versions": {
+    "cert-manager": "v1.5.3",
+    "istio": "v1.11.0",
+    "k8s": "v1.25.0"
+  }
+}

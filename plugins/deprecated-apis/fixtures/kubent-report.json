@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "title": "Deprecated APIs (kubent)",
+  "sections": [
+    {
+      "title": "Summary",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Verdict",
+          "4 removed"
+        ],
+        [
+          "Context",
+          "development"
+        ],
+        [
+          "Scanned",
+          "cluster and Helm v3 releases"
+        ],
+        [
+          "Findings",
+          "4"
+        ]
+      ]
+    },
+    {
+      "title": "Removed with no replacement",
+      "lines": [
+        "restricted \u2014 PodSecurityPolicy policy/v1beta1 \u2192 no replacement (Deprecated APIs removed in 1.25)"
+      ]
+    },
+    {
+      "title": "Removed",
+      "lines": [
+        "apps/legacy-ingress \u2014 Ingress extensions/v1beta1 \u2192 networking.k8s.io/v1 (Deprecated APIs removed in 1.22)",
+        "data/nightly-report \u2014 CronJob batch/v1beta1 \u2192 batch/v1 (Deprecated APIs removed in 1.25)",
+        "apps/api \u2014 HorizontalPodAutoscaler autoscaling/v2beta2 \u2192 autoscaling/v2 (Deprecated APIs removed in 1.26)"
+      ]
+    }
+  ]
+}

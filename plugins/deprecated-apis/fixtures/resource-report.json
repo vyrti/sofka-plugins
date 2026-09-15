@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "title": "Deprecated APIs (selection)",
+  "sections": [
+    {
+      "title": "Summary",
+      "columns": [
+        "Field",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Verdict",
+          "1 deprecated"
+        ],
+        [
+          "Context",
+          "development"
+        ],
+        [
+          "Selection",
+          "apps/api"
+        ],
+        [
+          "Target versions",
+          "cert-manager=v1.5.3 istio=v1.11.0 k8s=v1.25.0"
+        ],
+        [
+          "Findings",
+          "1"
+        ]
+      ]
+    },
+    {
+      "title": "Deprecated",
+      "lines": [
+        "apps/api \u2014 HorizontalPodAutoscaler autoscaling/v2beta2 \u2192 autoscaling/v2 (deprecated in v1.23.0, removed in v1.26.0)"
+      ]
+    }
+  ]
+}

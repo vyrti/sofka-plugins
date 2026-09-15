@@ -42,6 +42,15 @@ else:
             sys.stdout.write((root / "cert-manager/fixtures/status.txt").read_text())
         else:
             sys.stdout.write("renewal requested\n")
+    elif name == "pluto":
+        # `pluto detect -` reads the object on stdin; drain it like pluto does.
+        if "-" in sys.argv:
+            sys.stdin.buffer.read()
+            sys.stdout.write((root / "deprecated-apis/fixtures/resource.json").read_text())
+        else:
+            sys.stdout.write((root / "deprecated-apis/fixtures/pluto.json").read_text())
+    elif name == "kubent":
+        sys.stdout.write((root / "deprecated-apis/fixtures/kubent.json").read_text())
     elif name == "kubectl":
         request = json.loads((root / "cert-manager/fixtures/inspect-request.json").read_text())
         request["object"]["data"]["tls.key"] = "PRIVATE_KEY_SENTINEL"
@@ -61,7 +70,7 @@ class ActivityTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix="sofka-activity-test-")
         self.addCleanup(temporary.cleanup)
         self.tools = Path(temporary.name)
-        for name in ["trivy", "popeye", "oha", "cmctl", "kubectl"]:
+        for name in ["trivy", "popeye", "oha", "cmctl", "kubectl", "pluto", "kubent"]:
             tool = self.tools / name
             tool.write_text(f"#!{sys.executable}\n" + MOCK)
             tool.chmod(0o755)
@@ -109,6 +118,14 @@ class ActivityTests(unittest.TestCase):
             renew = fixture("cert-manager", "renew-request.json")
             renew["inputs"]["dry_run"] = dry_run
             cases.append(("cert-manager", renew, ["renew"]))
+        for name, args in [
+            ("request.json", ["pluto"]),
+            ("kubent-request.json", ["kubent"]),
+            ("resource-request.json", ["resource"]),
+        ]:
+            scan = fixture("deprecated-apis", name)
+            scan["inputs"].pop("report")
+            cases.append(("deprecated-apis", scan, args))
         for plugin, request, args in cases:
             with self.subTest(plugin=plugin, args=args, inputs=request["inputs"]):
                 normal = self.run_adapter(plugin, request, args)
